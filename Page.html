@@ -1,28 +1,1450 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Google Sign-In Example</title>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-</head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Query Search 🔍</title>
+    <style>
+        html {
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+        }
+        
+        
+        input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration {
+  display: none;
+}
+        
+        
 
-<body>
-  <!-- Google Sign-In Button -->
-  <div id="g_id_onload" 
-       data-client_id="56561728933-5eq42mr2661qoshs4d1viovg16mtpirf.apps.googleusercontent.com" 
-       data-callback="handleCredentialResponse">
-  </div>
-  <div class="g_id_signin" data-type="standard"></div>
+        body {
+            font-family:   Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            background-color: #fff;
+            min-height: 100vh;
+            width: 100%;
+        }
+        .container {
+            text-align: center;
+        }
 
-  <!-- Script to handle the response -->
-  <script>
-    function handleCredentialResponse(response) {
-      alert("Encoded JWT ID token: " + response.credential);
-      // You can send the token to your server for further processing
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 50px;
+        }
+
+        .search-bar {
+            background-color: #fff;
+            padding: 5px;
+            padding-bottom: 25px;
+            width: 291px;
+            height: 15px;
+            border-radius: 1000px;
+            border: 1px solid #dfe1e5;
+            box-shadow: 0 1px 8px rgba(32, 33, 36, 0.28);
+            border-color: rgba(223, 225, 229, 0);
+            position: relative;
+        }
+
+        input[type="search"] {
+            font-size: 17px;
+            height: 30px;
+            border: none;
+            width: 231px;
+            background-color: #45A3FA
+            margin-top: 2px;
+            outline: none;
+            margin-left: 5px;
+        }
+
+        .search-bar img.search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+        }
+
+        #mic-button {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            border: none;
+            background-color: transparent;
+            cursor: pointer;
+            outline: none;
+        }
+
+        #mic-button img {
+            width: 20px;
+            height: 20px;
+        }
+
+    .buttons button{
+      border: none;
+      font-size: 13px;
+      background-color: transparent;
     }
-  </script>
-</body>
 
+        #results {
+           margin-top: 20px;
+           
+        }
+        .result {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            color:#5A7FF5;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+          .result h3 {
+            margin: 0 0 10px 0;
+            color:#5A7FF5;
+        }
+
+        .result p {
+            margin: 0;
+            color: #444;
+        }
+
+        .result img.thumbnail {
+            width: 100px;
+            height: auto;
+            margin-right: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .result img.fullsize {
+            width: 300px;
+            height: auto;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+
+        img {
+            width: 210px;
+        }
+
+        #speech-modal,#signin-modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); /* Darker background */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border: none;
+            width: 100%;
+            max-width: 500px; /* Limit the width of the modal */
+            height: 100%;
+            max-height: 600px; /* Limit the height of the modal */
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow-y: auto; /* Scroll if content exceeds modal height */
+        }
+
+        .modal-content h2 {
+            margin: 0 0 20px 0;
+            color: #333;
+            font-size: 24px;
+        }
+
+        .modal-content input {
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #888;
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .modal-content button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #4285F4;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .modal-content button:hover {
+            background-color: #357ae8;
+        }
+
+        .modal-content .container {
+            width: 100%;
+            padding: 3px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .span {
+            width: 15px;
+            margin-bottom: 40px;
+            border-radius: 12px;
+            background-color: #fff;
+            animation: animate 1.3s ease-in-out infinite;
+        }
+
+        .span.uno {
+            background-color: #4285F4;
+        }
+
+        .span.dos {
+            background-color: #dc4437;
+        }
+
+        .span.mos {
+            background-color: #f4b400;
+        }
+
+        .span.cos {
+            background-color: #0f9d58;
+        }
+
+        @keyframes animate {
+            0%, 100% {
+                height: 30px;
+            }
+
+            50% {
+                height: 50px;
+            }
+        }
+
+        .span:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .span:nth-child(2) {
+            animation-delay: .3s;
+        }
+
+        .span:nth-child(3) {
+            animation-delay: .5s;
+        }
+
+        .span:nth-child(4) {
+            animation-delay: .1s;
+        }
+
+        .top-bar {
+            position: relative;
+            bottom: 126px;
+            display: flex;
+            align-items: center;
+        }
+
+        .profile-pic {
+            padding: 10px;
+            border: none;
+            background-color: #4285F4;
+            color: white;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            text-align: center;
+            margin: 0 5px;
+            transition: background-color 0.3s;
+        }
+        .signin-button{
+            margin-left:210px;
+            margin-top:10px;
+            background-color:#4285F4;
+            height: 40px;
+            border:none;
+            color: white;
+            border-radius:5px;
+            width:80px;
+        }
+
+        .signin-button:hover {
+            background-color: #357AE8;
+        }
+
+        .profile-pic {
+            display: none;
+            
+            margin-left:255px;
+            margin-top: 1px;
+            background-color: auto;
+            width: 25px;
+            height: 25px;
+            line-height: 25px;
+            text-align: center;
+            font-size: 23px;
+        }
+
+        .signout-button {
+            display: none;
+            border:none;
+            position: absolute;
+            border-radius: 5px;
+            background-color:#fff;
+            height:30px; 
+            width:70px;
+            color: #000;
+            margin-left: 220px;
+            text-decoration: none;
+            margin-top: 100px;
+            box-shadow: 0 1px 8px rgba(32, 33, 36, 0.28);
+        }
+
+       .fullscreen-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .fullscreen-container img {
+            width: 90%;
+            height: auto;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+
+
+         .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 5px 15px;
+            background-color: #F8F8F8;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .back-button img {
+            width: 35px;
+            height: 35px;
+            background-color: transparent;
+        }
+      .modal-contentr {
+            position: fixed;
+            background-color: #fefefe;
+            height: 30%;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 75%;
+            max-width: 295px;
+            text-align: center;
+            border-radius: 10px;
+        }
+
+        .modal-contentr h2 {
+            margin: 0;
+            color: gray;
+           
+        }
+
+        .modal-contentr .container {
+            
+            width: 100%;
+            height: 100%;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+        }
+          
+          #reloadButton {
+           padding: 10px 20px;
+           background-color: #007BFF;
+           color: #FFFFFF;
+           border: none;
+           border-radius: 5px;
+           cursor: pointer;
+           font-size: 16px;
+           transition: background-color 0.3s;
+           margin-top: 10px;
+        }
+         
+           #backrelode{
+           position: fixed;
+           font-size: 28px;
+           background-color: transparent;
+           margin-bottom: 530px;
+           color:grey;
+           margin-left:285px;
+       }
+          
+          #theme-options {
+          display: none;
+          margin-top: 10px;
+          border-top: 1px solid #ddd;
+       }
+
+.dark-theme {
+    background-color: #121212;
+    color: #ffffff;
+}
+
+.dark-theme #reloadButton {
+  background-color: #313131;
+  
+}
+
+.dark-theme #reloadButton:active{
+  background-color: #4B4B4B;
+}
+
+
+.dark-theme .search-bar {
+    background-color: #333333;
+    color: #ffffff;
+    border: 1px solid #555555;
+}
+
+.dark-theme .modal-contentr{
+  background-color: #333333;
+  color: #ffffff;
+}
+
+.dark-theme input[type="search"] {
+    background-color: #333333;
+    color: #ffffff;
+    outline: none;
+}
+
+.dark-theme .buttons button {
+    background-color: transparent;
+}
+
+.dark-theme .modal-content{
+  background-color: #333333;
+  color: #ffffff;
+}
+
+.dark-theme .modal-content input{
+  background-color: #333333;
+  color: #FFFFFF;
+}
+
+.dark-theme .modal-content h2{
+  color: #CBCBCB;
+  font-size: 30px;    
+}
+
+.dark-theme  .signin-button{
+  background-color: #313131;
+  
+}
+
+.dark-theme .signin-button:active{
+background-color: #4B4B4B;
+}
+
+.dark-theme .result {
+    background-color: #333333;
+    color: #ffffff;
+    border: 1px solid #444444;
+}
+
+.dark-theme .result h3 {
+    color: #ffffff;
+}
+
+.dark-theme .result p {
+    color: #CCCCCC;
+}
+
+.dark-theme .fullscreen-container {
+    background-color: rgba(0, 0, 0, 0.9);
+}
+
+.dark-theme .close-button {
+    background-color: #333333;
+    color: #ffffff;
+}
+
+#dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 40px;
+    left: 0;
+    background-color: #fff;
+    box-shadow: 0 1px 8px rgba(32, 33, 36, 0.28);
+    border-radius: 5px;
+    z-index: 1;
+}
+
+#dropdown-menu button {
+    display: block;
+    width: 100%;
+    padding: 10px 20px;
+    border: none;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+    outline: none;
+    font-size: 16px;
+}
+
+#dropdown-menu button:active {
+    background-color: #f1f1f1;
+    transition: background-color 0.3s;
+}
+
+ .setting img{
+  width: 20px;
+  position: fixed;
+  margin-left:1px;
+  
+ }
+
+.setting{
+  border:none;
+  margin-bottom: 38px;
+  background-color: transparent;
+  }
+
+  .tab-container {
+            display: flex;
+            border-bottom: 2px solid #ccc;
+            width: 200px; /* Adjust width as needed */
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            color: #999; /* Gray color for inactive tabs */
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+        .tab::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: transparent;
+            transition: background-color 0.3s ease;
+        }
+        .tab.active {
+            color: black;
+        }
+        .tab.active::after {
+            background-color: black;
+        }
+
+.dark-theme .tab{
+  color: #A0A0A0;
+}
+
+.dark-theme .tab.active{
+  color:#fff;
+}
+
+.dark-theme .tab.active::after{
+  background-color: #fff;
+}
+
+.dark-theme button.snb-button{
+  background-color: #575757;
+}
+
+#signin-modal input:hover {
+  outline:2px solid #E7E7E7;
+}
+
+.QuerySearchLogo{
+  width: 250px;
+  margin-bottom: 8px;
+ 
+}
+
+/* Spinner styles */
+.spinner {
+    display: none; /* Hidden by default */
+    border: 8px solid #f3f3f3; /* Light grey */
+    border-top: 8px solid #007bff; /* Blue */
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Center spinner */
+#spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100px; /* Adjust height as needed */
+}
+
+
+
+
+
+.thumbnail {
+  width: 100%;
+  
+  height: auto;
+  border-radius: 4px;
+}
+
+h3 {
+  font-size: 1.1em;
+  margin: 0;
+  color: #5A7FF5;
+  text-align: center;
+}
+
+p {
+  font-size: 0.9em;
+  color: #555;
+  text-align: center;
+  margin: 10px 0 0;
+}
+
+@media (max-width: 600px) {
+  #search-input {
+    width: calc(100% - 70px);
+  }
+
+
+        .book {
+            padding: 10px;
+            margin-bottom: 20px;
+            color:#5A7FF5;
+
+            border: 1px solid #DDDDDD;
+            border-radius: 4px;
+            background-color: #FAFAFA;
+        }
+
+        .book img {
+            max-width: 120px;
+            margin-right: 20px;
+        }
+
+        .book-info {
+            display: flex;
+            color: #5A7FF5;
+            align-items: center;
+        }
+
+        .book-title {
+            font-size: 18px;
+            font-weight: bold;
+            color:#819FFF;
+           
+        }
+
+        .book-authors {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #555;
+        }
+        
+        .dark-theme .book {
+         display: flex;
+          border: 1px solid #444444;
+          gap: 45px;
+          
+          background-color: #333333;
+       }
+       
+      .dark-theme .video-list {
+        background-color: #444444;
+      }
+       
+     .video-list {
+      list-style: none;
+      padding: 0;
+      max-width:100%;
+      border-radius: 5px;
+      background-color: #F0F0F0;
+      margin-bottom: 20px;
+    }
+
+    .video-item {
+      display: flex;
+      flex-direction: column;
+      border-bottom: 1px solid #ddd;
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      transition: background-color 0.3s ease;
+    }
+
+
+
+    /* Thumbnail and title are aligned vertically */
+    .thumbnail {
+      width: 100%;
+      height: auto;
+      margin-bottom: 10px;
+    }
+
+    .video-info h3 {
+      font-size: 18px;
+      font-weight: 500;
+      
+      color: #fff;
+      margin: 0;
+      width:95%;
+      line-height: 1.4;
+    }
+
+    .video-info p {
+      font-size: 14px;
+      color: #757575;
+      margin: 5px 0 0;
+      width: 100%;
+    }
+
+    /* Link styles */
+    .video-item a {
+      text-decoration: none;
+      color: #5A7FF5;
+    }
+
+    .video-item a:hover {
+      text-decoration: underline;
+    }
+
+    /* Adjusting thumbnail and layout to resemble the image */
+    .thumbnail img {
+      width: 100%;
+      height: auto;
+      border-radius: 4px;
+    }
+
+    .video-metadata {
+      margin-top: 5px;
+      font-size: 13px;
+      color: #555555;
+    }
+    
+    .dark-theme .video-metadata {
+      color: #AEAEAE;
+    }
+    
+/* Web results font color */
+.result h3 a {
+    color: royalblue;
+    text-decoration: none;
+}
+
+/* Book results font color */
+.book h3 a {
+    color: royalblue;
+    text-decoration: none;
+}
+
+  .hidden {
+  display: none;
+}
+
+/* Styles for full-page error message */
+.error-container {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent black */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.error-message {
+    background-color: #fff;
+    padding: 20px;
+    text-align: center;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.error-message h1 {
+    font-size: 36px;
+    color: #d80000;
+}
+
+.error-message p {
+    font-size: 18px;
+    color: #333;
+}
+
+#retry{
+  
+}
+
+ </style>
+</head>
+<body>
+  <div id="error-container" class="error-container">
+    <div class="error-message">
+        <h1>Internet Connection Error</h1>
+        <p>Please check your internet connection and try again.</p>
+        <button id="retry" onclick="reloadPage()" class="button">Retry</button> 
+    </div>
+</div>
+
+
+    <div class="container">
+        <div class="top-bar">
+          <button id="setting" class="setting"><img src="https://i.postimg.cc/zfmRLxf8/settings-gear-icon-blue-background-png-uhbuesxzsv6ax4zb-2.png" alt="setting"></button>
+<div id="dropdown-menu" class="dropdown-menu">
+    <button id="theme-button">Theme</button>
+    <div id="theme-options">
+        <button id="dark-theme-button">Dark Theme</button>
+        <button id="light-theme-button">Light Theme</button>
+        
+    </div>
+</div>
+            <button class="signin-button" id="signin-button">Sign In</button>
+            <div id="profile-pic" class="profile-pic"></div>
+            <button class="signout-button" id="signout-button">Sign Out</button>
+            
+        </div>
+        <form id="search-form">
+          <img src="https://i.postimg.cc/vmpXZrJV/df190b20969b29f815ed871626ff9332.png" alt="Query Search Logo" class="QuerySearchLogo" id="QuerySearchLogo">
+
+            <div class="search-bar">
+                <img src="https://i.postimg.cc/wxs5BR2X/622669-1.png" id="searchicon" class="search-icon" alt="Search Icon">
+                <input type="search" id="search-input" placeholder="Type here...">
+                <button type="button" id="mic-button"><img src="https://i.postimg.cc/9XLDz6GQ/60955.png" alt="Voice Search"></button>
+            </div>
+           <br>
+
+
+            <div class="buttons">
+            
+               <button type="button" id="web-search" class="tab active" data-type="web">WEB</button>
+               <button type="button" id="image-search" class="tab" data-type="image">IMAGE</button>  
+               <button type="button" id="video-search" class="tab" data-type="video">VIDEO</button> 
+               <button type="button" id="books-search" class="tab" data-type="books">BOOKS</button>  </div>
+        </form>
+        <div id="results"></div>
+         <div id="spinner-container">
+    <div id="spinner" class="spinner"></div>
+</div>
+    </div>
+    <div class="fullscreen-container" id="fullscreen-container">
+        <button class="back-button" id="back-button"><img src="https://i.postimg.cc/6Q8TfS9h/arrow-back-icon-which-is-suitable-for-commercial-work-and-easily-modify-or-edit-it-vector-removebg-p.png" alt="Back"></button>
+        <img id="fullscreen-image" src="" alt="Full size image">
+    </div>
+    <!-- Sign-In Modal -->
+    <div id="signin-modal">
+        <div class="modal-content">
+          <button id="backrelode" onclick="reloadPage()" class="button">×</button> 
+            <img src="https://i.postimg.cc/vmpXZrJV/df190b20969b29f815ed871626ff9332.png" alt="">
+            <br>
+            <h2>Sign in</h2><br>
+            Create your 'QUERY SEARCH' account
+            <form id="signin-form">
+                <input type="text" id="username" placeholder="Username" required>
+                <input type="email" id="email" placeholder="Email ID" required>
+                <input type="password" id="password" placeholder="Create a Password" required>
+                <input type="password" id="repassword" placeholder="Re-enter Password" required>
+                <button type="submit" class="snb-button" >Sign In</button>
+            </form>
+        </div>
+    </div>
+    <!-- Speech Recognition Modal -->
+    <div id="speech-modal">
+        <div class="modal-contentr">
+            <h2>Speak Now</h2>
+                        <div class="container">
+                <div class="span uno"></div>
+                <div class="span dos"></div>
+                <div class="span mos"></div>
+                <div class="span cos"></div>
+            </div>
+        </div>
+    </div>
+   <script>
+let queryCount = 1;
+const dailyQuota = 10000;
+
+function checkQuota() {
+    if (queryCount >= dailyQuota) {
+        alert("You have reached the daily search quota limit.");
+        return false;
+    }
+    return true;
+}
+
+function search(type = 'web') {
+    if (!checkQuota()) return;
+
+    const query = document.getElementById('search-input').value;
+    const apiKey = 'AIzaSyAGuVLKut5iCWw5hTIfn4JN9O4uaZ6a2so';
+    const cx = '06c7bdfb887e2443d';
+    const maxResults = 15;
+    const resultsPerPage = 10;
+    const pages = Math.ceil(maxResults / resultsPerPage);
+
+    let allResults = [];
+    let promises = [];
+
+    for (let i = 0; i < pages; i++) {
+        let start = i * resultsPerPage + 1;
+        let url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${cx}&q=${query}&start=${start}`;
+        if (type === 'image') {
+            url += '&searchType=image';
+        }
+
+        promises.push(
+            fetch(url)
+                .then(response => {
+                    queryCount++;
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.items) {
+                        allResults = allResults.concat(data.items);
+                    }
+                })
+                .catch(error => console.log('Error:', error))
+        );
+    }
+
+    Promise.all(promises).then(() => {
+        displayResults(allResults, type);
+    });
+}
+
+function displayResults(results, type) {
+    const resultsContainer = document.getElementById('results');
+    resultsContainer.innerHTML = '';
+
+    if (results.length > 0) {
+        results.forEach(item => {
+            const resultDiv = document.createElement('div');
+            resultDiv.classList.add('result');
+
+            if (type === 'web') {
+                const textDiv = document.createElement('div');
+                
+                const title = document.createElement('h3');
+                title.innerHTML = `<a href="${item.link}" target="_blank">${item.title}</a>`;
+                textDiv.appendChild(title);
+
+                const snippet = document.createElement('p');
+                snippet.textContent = item.snippet;
+                textDiv.appendChild(snippet);
+
+                resultDiv.appendChild(textDiv);
+            } else if (type === 'image') {
+                const img = document.createElement('img');
+                img.src = item.link;
+                img.classList.add('fullsize');
+                img.addEventListener('click', function () {
+                    showFullscreenImage(item.link);
+                });
+                resultDiv.appendChild(img);
+            }
+
+            resultsContainer.appendChild(resultDiv);
+        });
+    } else {
+        resultsContainer.innerHTML = `
+            <h1>404</h1>
+            <h3>No Results Found!</h3>
+            <p>Something went wrong, please try again later.</p>
+            <button id="reloadButton" onclick="reloadPage()" class="btn btn-secondary">Back</button>
+        `;
+    }
+}
+
+function showFullscreenImage(src) {
+    const fullscreenContainer = document.getElementById('fullscreen-container');
+    const fullscreenImage = document.getElementById('fullscreen-image');
+    if (fullscreenImage && fullscreenContainer) {
+        fullscreenImage.src = src;
+        fullscreenContainer.style.display = 'flex';
+    }
+}
+
+function hideFullscreenImage() {
+    const fullscreenContainer = document.getElementById('fullscreen-container');
+    if (fullscreenContainer) {
+        fullscreenContainer.style.display = 'none';
+    }
+}
+
+function reloadPage() {
+    window.location.reload();
+}
+
+// Event listeners for search buttons
+document.getElementById('web-search').addEventListener('click', function () {
+    search('web');
+});
+
+document.getElementById('image-search').addEventListener('click', function () {
+    search('image');
+});
+
+document.getElementById('video-search').addEventListener('click', function () {
+    const query = document.getElementById('search-input').value;
+    if (query) {
+        showSpinner();
+        searchVideos(query);
+    } else {
+        console .log('Please enter a search query.');
+    }
+});
+
+// Video search functionality
+function searchVideos(query) {
+    if (!checkQuota()) return;
+
+    const apiKey = 'AIzaSyD5ME5xg7klHmfrm3NGy2sOPl9kr3lCqa4';
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)}&key=${apiKey}&maxResults=15`;
+
+    fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            displayVideoResults(data.items);
+            hideSpinner();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            hideSpinner();
+        });
+}
+
+function searchVideos(query) {
+    if (!checkQuota()) return;
+
+    const apiKey = 'AIzaSyD5ME5xg7klHmfrm3NGy2sOPl9kr3lCqa4';
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)}&key=${apiKey}&maxResults=15`;
+
+    fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            displayVideoResults(data.items);
+            hideSpinner();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            hideSpinner();
+        });
+}
+
+function displayVideoResults(results) {
+    const resultsContainer = document.getElementById('results');
+    resultsContainer.innerHTML = ''; // Clear previous results
+
+    if (results.length > 0) {
+        const videoList = document.createElement('ul');
+        videoList.classList.add('video-list'); // Add the 'video-list' class to the UL element
+
+        results.forEach(item => {
+            const videoItem = document.createElement('li');
+            videoItem.classList.add('video-item'); // Add 'video-item' class for each LI element
+
+            // Create thumbnail
+            const thumbnailDiv = document.createElement('div');
+            thumbnailDiv.classList.add('thumbnail');
+            const thumbnail = document.createElement('img');
+            thumbnail.src = item.snippet.thumbnails.high.url;
+            thumbnail.alt = item.snippet.title;
+            thumbnailDiv.appendChild(thumbnail);
+
+            // Create video info section
+            const videoInfoDiv = document.createElement('div');
+            videoInfoDiv.classList.add('video-info');
+
+            // Title
+            const title = document.createElement('h3');
+            title.innerHTML = `<a href="https://www.youtube.com/watch?v=${item.id.videoId}" target="_blank">${item.snippet.title}</a>`;
+            videoInfoDiv.appendChild(title);
+
+            // Description
+            const description = document.createElement('p');
+            description.textContent = item.snippet.description;
+            videoInfoDiv.appendChild(description);
+
+            // Video metadata (like channel title and publish date)
+            const metadata = document.createElement('div');
+            metadata.classList.add('video-metadata');
+            metadata.textContent = `Published by ${item.snippet.channelTitle} on ${new Date(item.snippet.publishedAt).toLocaleDateString()}`;
+            videoInfoDiv.appendChild(metadata);
+
+            // Append the thumbnail and info to the video item
+            videoItem.appendChild(thumbnailDiv);
+            videoItem.appendChild(videoInfoDiv);
+
+            // Append the video item to the list
+            videoList.appendChild(videoItem);
+        });
+
+        resultsContainer.appendChild(videoList); // Append the full list to the results container
+    } else {
+        
+        resultsContainer.innerHTML = `
+            <h1>404</h1>
+            <h3>No Results Found!</h3>
+            <p>Something went wrong, please try again later.</p>
+        `;
+    }
+}
+
+// Spinner functionality
+function showSpinner() {
+    document.getElementById('spinner').style.display = 'block';
+}
+
+function hideSpinner() {
+    document.getElementById('spinner').style.display = 'none';
+}
+
+// Book search functionality
+document.getElementById('books-search').addEventListener('click', function () {
+    searchBooks();
+});
+
+function searchBooks() {
+    const query = document.getElementById('search-input').value;
+    if (!query) {
+        console.log('Please enter a search query.');
+        return;
+    }
+
+    const apiKey = 'AIzaSyCjguzisfSD3feJ4Fr1C9kq9WEmiAEk6XY';
+    const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&key=${apiKey}&maxResults=15`;
+
+    fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            displayBookResults(data.items);
+        })
+        .catch(error => {
+            console.log('Error:', error);
+        });
+}
+
+function displayBookResults(results) {
+    const resultsContainer = document.getElementById('results');
+    resultsContainer.innerHTML = '';
+
+    if (results && results.length > 0) {
+        results.forEach(item => {
+            const resultDiv = document.createElement('div');
+            resultDiv.classList.add('book');
+
+            const thumbnail = document.createElement('img');
+            thumbnail.src = item.volumeInfo.imageLinks ? item.volumeInfo.imageLinks.thumbnail : 'https://via.placeholder.com/128x194?text=No+Image';
+            thumbnail.alt = item.volumeInfo.title;
+
+            const infoDiv = document.createElement('div');
+            infoDiv.classList.add('book-info');
+
+            const textDiv = document.createElement('div');
+
+            const title = document.createElement('h3');
+            title.classList.add('book-title');
+            title.innerHTML = `<a href="${item.volumeInfo.infoLink}" target="_blank">${item.volumeInfo.title}</a>`;
+
+            const author = document.createElement('p');
+            author.classList.add('book-authors');
+            author.textContent = `Author: ${item.volumeInfo.authors ? item.volumeInfo.authors.join(', ') : 'Unknown'}`;
+
+            textDiv.appendChild(title);
+            textDiv.appendChild(author);
+            infoDiv.appendChild(thumbnail);
+            infoDiv.appendChild(textDiv);
+            resultDiv.appendChild(infoDiv);
+
+            resultsContainer.appendChild(resultDiv);
+        });
+    } else {
+        resultsContainer.innerHTML = `<h1>No Results Found!</h1><p>Try a different search term.</p>`;
+    }
+}
+
+// Speech recognition functionality
+const micButton = document.getElementById('mic-button');
+const speechModal = document.getElementById('speech-modal');
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+if (SpeechRecognition) {
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+
+    micButton.addEventListener('click', () => {
+        recognition.start();
+    });
+
+    recognition.onstart = () => {
+        speechModal.style.display = 'flex';
+    };
+
+    recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById('search-input').value = transcript;
+        speechModal.style.display = 'none';
+        recognition.stop();
+    };
+
+    recognition.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        speechModal.style.display = 'none';
+        recognition.stop();
+    };
+
+    recognition.onend = () => {
+        speechModal.style.display = 'none';
+    };
+} else {
+    micButton.style.display = 'none';
+    console.log('Speech Recognition API is not supported in this browser.');
+}
+document.addEventListener('DOMContentLoaded', function() {
+        // Check if user is already signed in
+        const storedUsername = localStorage.getItem('username');
+        const storedemail = localStorage.getItem('email');
+        const storedpassword = localStorage.getItem('password');
+    
+        const storedColor = localStorage.getItem('profileColor');
+        const storedTheme = localStorage.getItem('theme');
+
+        if (storedUsername) {
+            createProfilePic(storedUsername, storedColor);
+            document.getElementById('signin-button').style.display = 'none';
+            document.getElementById('profile-pic').style.display = 'block';
+            document.getElementById('signout-button').style.display = 'none';
+        }
+
+        if (storedTheme) {
+            document.body.classList.add(storedTheme);
+        }
+
+        document.getElementById('signin-button').addEventListener('click', function() {
+            document.getElementById('signin-modal').style.display = 'flex';
+        });
+
+        document.getElementById('signin-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const repassword = document.getElementById('repassword').value;
+
+            if (password !== repassword) {
+                alert('Passwords do not match. Please try again.');
+                return;
+            }
+
+            const color = getRandomColor();
+            localStorage.setItem('username', username);
+           localStorage.setItem('profileColor', color);
+            localStorage.setItem('email', email);
+            localStorage.setItem('password', password);
+
+            createProfilePic(username, color);
+            document.getElementById('signin-modal').style.display = 'none';
+            document.getElementById('signin-button').style.display = 'none';
+            document.getElementById('profile-pic').style.display = 'block';
+            document.getElementById('signout-button').style.display = 'none';
+        });
+
+        function createProfilePic(username, color) {
+            const profilePic = document.getElementById('profile-pic');
+            profilePic.textContent = username.charAt(0).toUpperCase();
+            profilePic.style.backgroundColor = color;
+        }
+
+        function getRandomColor() {
+            const colors = ['#4285F4', '#EA4335', '#FBBC05', '#34A853', 'orange', '#2284CA', 'brown', '#D80000', '#BCBCBC'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        document.getElementById('profile-pic').addEventListener('click', function() {
+            const signoutButton = document.getElementById('signout-button');
+            signoutButton.style.display = signoutButton.style.display === 'block' ? 'none' : 'block';
+        });
+
+        document.getElementById('signout-button').addEventListener('click', function() {
+            localStorage.removeItem('username');
+            localStorage.removeItem('email');
+            localStorage.removeItem('password');
+            localStorage.removeItem('profileColor');
+            document.getElementById('profile-pic').style.display = 'none';
+            document.getElementById('signin-button').style.display = 'block';
+            document.getElementById('signout-button').style.display = 'none';
+        });
+
+            document.getElementById('QuerySearchLogo').addEventListener('click',function() {
+            location.reload();
+        });
+    });
+    document.getElementById('searchicon').addEventListener('click',function() {
+            location.reload();
+        });
+    
+
+    function reloadPage() {
+        window.location.reload();
+    }
+
+    
+const themeButton = document.getElementById('theme-button');
+const themeOptions = document.getElementById('theme-options');
+const darkThemeButton = document.getElementById('dark-theme-button');
+const lightThemeButton = document.getElementById('light-theme-button');
+
+themeButton.addEventListener('click', function() {
+  themeOptions.style.display = themeOptions.style.display === 'block' ? 'none' : 'block';
+});
+
+darkThemeButton.addEventListener('click', function() {
+  document.body.classList.add('dark-theme');
+  localStorage.setItem('theme', 'dark-theme');
+  themeOptions.style.display = 'none';
+
+});
+
+lightThemeButton.addEventListener('click', function() {
+  document.body.classList.remove('dark-theme');
+  document.body.classList.add('light-theme');
+  localStorage.setItem('theme', 'light-theme');
+  themeOptions.style.display = 'none';
+
+});
+
+// Settings button functionality
+const settingButton = document.getElementById('setting');
+setting.addEventListener('click', function() {
+const dropdownMenu = document.getElementById('dropdown-menu');
+const isDropdownVisible = dropdownMenu.style.display === 'block';
+dropdownMenu.style.display = isDropdownVisible ? 'none' : 'block';
+themeOptions.style.display = 'none';
+
+});
+        document.addEventListener('DOMContentLoaded', function() {
+            // Functionality to switch between tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const type = this.getAttribute('data-type');
+                    search(type); // Call your search function with the appropriate type
+                    // Add/remove 'active' class for styling
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+            
+        });
+        document.getElementById('search-input').addEventListener('keydown', function(event) {
+          if (event.key === 'Enter') {
+            event.preventDefault(); // Prevent the default form submission
+            search('web'); // Call the search function with the 'web' parameter
+          }
+        });
+        
+        document.getElementById('back-button').addEventListener('click', function () {
+    hideFullscreenImage();
+});
+
+// Check for internet connection
+window.addEventListener('load', function() {
+    if (!navigator.onLine) {
+        showErrorMessage();
+    }
+});
+
+window.addEventListener('offline', function() {
+    showErrorMessage();
+});
+
+window.addEventListener('online', function() {
+    hideErrorMessage();
+});
+
+function showErrorMessage() {
+    const errorContainer = document.getElementById('error-container');
+    if (errorContainer) {
+        errorContainer.style.display = 'flex';
+    }
+}
+
+function hideErrorMessage() {
+    const errorContainer = document.getElementById('error-container');
+    if (errorContainer) {
+        errorContainer.style.display = 'none';
+    }
+}
+
+</script>
+</body>
 </html>
